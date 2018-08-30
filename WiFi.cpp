@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "WiFi.h"
 #include <SoftwareSerial.h>
 
@@ -33,4 +34,15 @@ void WiFi::sendCommand(String command, int maxTime, char readReplay[]) {
 	}
 	countTimeCommand = 0;
 	found = false;
+}
+
+void WiFi::sendData(String host, String port, String data) {
+	
+	sendCommand("AT+CIPMUX=1",5,"OK");
+	sendCommand("AT+CIPSTART=0,\"TCP\",\""+ host +"\","+ port,15,"OK");
+	sendCommand("AT+CIPSEND=0," +String(data.length()+4),4,">");
+	esp8266.println(data);
+	delay(1500);
+	countTrueCommand++;
+	sendCommand("AT+CIPCLOSE=0",5,"OK");
 }

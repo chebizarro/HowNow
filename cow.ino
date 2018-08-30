@@ -21,6 +21,10 @@
 #define ERR_PIN       7
 #define WIFI_RX       9
 #define WIFI_TX       10
+// these are for documentation purposes
+#define SD_MOSI       11
+#define SD_MISO       12
+#define SD_CLK        13
 
 // Some constants
 #define TIMER_DELAY   500000
@@ -33,6 +37,8 @@
 
 #define WIFI_NAME     "TESCWireless"
 #define WIFI_PASSWORD ""
+#define REMOTE_HOST   ""
+
 
 OneWire oneWire(ONE_WIRE_BUS); 
 DallasTemperature tempSensors(&oneWire);
@@ -83,7 +89,7 @@ void setup() {
   // set up WiFi
   wifi.connect(WIFI_NAME, WIFI_PASSWORD);
   
-  // set up timer
+  // set up timers
   Timer1.initialize(TIMER_DELAY);
   Timer1.attachInterrupt(readSensors);
   
@@ -146,7 +152,11 @@ void loop() {
   
     // check if there is a network connection
     if(wifi.connected) {
-      
+      String dataString = "";
+      while (dataFile.available()) {
+        dataString += String(dataFile.read());
+      }
+      wifi.sendData(REMOTE_HOST,"",dataString);
     }
 
     dataFile.close();

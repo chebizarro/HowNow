@@ -13,6 +13,8 @@ public:
 
 	void sendCommand(String command, int maxTime, char readReplay[]);
 
+	void sendData(String host, String port, String data);
+
 	bool connected;
 
 private:

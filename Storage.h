@@ -5,12 +5,16 @@
  */
 #include <SD.h>
 
+typedef struct Step {
+  int x, y, z;
+  float ax,ay,az;
+} Step;
+
 typedef struct Data {
   uint32_t date;
   uint32_t time;
-  int heartRate;
   double respirationRate;
-  int steps;
+  Step steps;
   double lattitude;
   double longtitude;
 } Data;
@@ -26,17 +30,30 @@ void operator<< (File& file, volatile Data& data) {
   file.print(data.time);
   file.println("\",");
 
-  file.print("\"heart-rate\":\"");
-  file.print(data.heartRate);
-  file.println("\",");
-
   file.print("\"respiration-rate\":\"");
   file.print(data.respirationRate);
   file.println("\",");
 
-  file.print("\"steps\":\"");
-  file.print(data.steps);
+  file.print("\"steps\": {");
+  file.print("\"x\":\"");
+  file.print(data.steps.x);
   file.println("\",");
+  file.print("\"x\":\"");
+  file.print(data.steps.y);
+  file.println("\",");
+  file.print("\"x\":\"");
+  file.print(data.steps.z);
+  file.println("\",");
+  file.print("\"x\":\"");
+  file.print(data.steps.ax);
+  file.println("\",");
+  file.print("\"x\":\"");
+  file.print(data.steps.az);
+  file.println("\",");
+  file.print("\"x\":\"");
+  file.print(data.steps.ay);
+  file.println("\"");
+  file.println("},");
 
   file.print("\"lat\":\"");
   file.print(data.lattitude);

@@ -39,7 +39,7 @@
 #define WIFI_PASSWORD ""
 #define REMOTE_HOST   ""
 
-
+// Globals
 OneWire oneWire(ONE_WIRE_BUS); 
 DallasTemperature tempSensors(&oneWire);
 TinyGPSPlus gps;
@@ -55,9 +55,9 @@ void error(int errnum) {
   // blink the error LED errnum times
   for (int i=0; i < errnum; i++) {
     digitalWrite(ERR_PIN, HIGH);
-    delay(10000);
+    delay(1000);
     digitalWrite(ERR_PIN, LOW);
-    delay(10000);
+    delay(1000);
   }
   lasterr = errnum;
   delay(30000);
@@ -122,6 +122,13 @@ void readSensors() {
   accelerometer.getXYZ(&x,&y,&z);
   float ax,ay,az;
   accelerometer.getAcceleration(&ax,&ay,&az);
+
+  cowData.steps.x = x;
+  cowData.steps.y = y;
+  cowData.steps.z = z;
+  cowData.steps.ax = ax;
+  cowData.steps.ay = ay;
+  cowData.steps.az = az;
   
   // there are sensor readings available
   sensorFlag = 1;

@@ -4,6 +4,7 @@
  *  The main Cow module
  */
 #include "Storage.h"
+#include "WiFi.h"
 #include <SD.h>
 #include <OneWire.h> 
 #include <DallasTemperature.h>
@@ -12,30 +13,40 @@
 #include <ADXL335.h>
 #include <TimerOne.h>
 
+// The pin allocations
 #define ONE_WIRE_BUS  2 
 #define GPS_TX_PIN    3
 #define GPS_RX_PIN    4
 #define SS_PIN        5
 #define ERR_PIN       7
+#define WIFI_RX       9
+#define WIFI_TX       10
 
-#define DELAY_        1000
+// Some constants
+#define TIMER_DELAY   500000
 #define GPS_BAUD      4800
 
+// Error "codes"
 #define SD_ERROR      3
-#define FILE_ERROR    5
-#define GPS_ERROR     1
+#define FILE_ERROR    6
+#define GPS_ERROR     9
+
+#define WIFI_NAME     "TESCWireless"
+#define WIFI_PASSWORD ""
 
 OneWire oneWire(ONE_WIRE_BUS); 
 DallasTemperature tempSensors(&oneWire);
 TinyGPSPlus gps;
 SoftwareSerial ss(GPS_RX_PIN, GPS_TX_PIN);
 ADXL335 accelerometer;
+WiFi wifi(WIFI_RX, WIFI_TX);
 
 int lasterr = 0;
 volatile byte sensorFlag;
 volatile Data cowData;
 
 void error(int errnum) {
+  // blink the error LED errnum times
   for (int i=0; i < errnum; i++) {
     digitalWrite(ERR_PIN, HIGH);
     delay(10000);
@@ -56,7 +67,6 @@ void setup() {
   pinMode(SS_PIN, OUTPUT);
  
   if (!SD.begin(SS_PIN)) {
-    // blink the error LED x times
     error(SD_ERROR);
     return;
   }
@@ -71,9 +81,10 @@ void setup() {
   ss.begin(GPS_BAUD);
 
   // set up WiFi
-
+  wifi.connect(WIFI_NAME, WIFI_PASSWORD);
+  
   // set up timer
-  Timer1.initialize(500000);
+  Timer1.initialize(TIMER_DELAY);
   Timer1.attachInterrupt(readSensors);
   
 }
@@ -90,7 +101,7 @@ void readSensors() {
         cowData.lattitude = gps.location.lng();
       }
     } else {
-      //error(GPS_ERROR);
+      error(GPS_ERROR);
     }
   }
 
@@ -105,13 +116,15 @@ void readSensors() {
   accelerometer.getXYZ(&x,&y,&z);
   float ax,ay,az;
   accelerometer.getAcceleration(&ax,&ay,&az);
+  
   // there are sensor readings available
   sensorFlag = 1;
 }
 
 void loop() {
-  
-  if (lasterr > 1) {
+
+  // If there is an error, do not log any data
+  if (lasterr > 0) {
     error(lasterr);
     return;
   }
@@ -132,10 +145,10 @@ void loop() {
     dataFile << cowData;
   
     // check if there is a network connection
-  
+    if(wifi.connected) {
+      
+    }
 
     dataFile.close();
   }
-  
-  //delay(DELAY_);
 }

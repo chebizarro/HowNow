@@ -1,6 +1,6 @@
 /*
  * This module uses the ADA254 MicroSD Card
- * the store the monitored data until it can
+ * to store the monitored data until it can
  * be uploaded
  */
 #include <SD.h>
